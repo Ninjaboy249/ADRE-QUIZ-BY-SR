@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
 import { extname, join } from "node:path";
+import { createHmac } from "node:crypto";
 
 function loadLocalEnv() {
   for (const filename of [".env.local", ".env"]) {
@@ -93,14 +94,53 @@ async function answerQuestion(request, response) {
   }
 }
 
+async function translateQuestion(request, response) {
+  try {
+    const { questionId, language: code } = await readBody(request);
+    const question = questionMap.get(questionId);
+    const language = { hi: "Hindi", as: "Assamese", brx: "Boro (Devanagari script)" }[code];
+    if (!question || !language) return json(response, 400, { error: "Invalid question or language." });
+    if (!process.env.OPENAI_API_KEY) return json(response, 503, { error: "Translation is not configured yet." });
+    const apiResponse = await fetch("https://api.openai.com/v1/responses", { method: "POST", headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || "gpt-5.6-luna", reasoning: { effort: "low" },
+      instructions: `Translate this exam MCQ faithfully into ${language}. Preserve meaning, proper nouns, and option order. Return only the requested JSON.`,
+      input: JSON.stringify({ question: question.question, options: question.options }),
+      text: { format: { type: "json_schema", name: "translation", strict: true, schema: { type: "object", properties: { question: { type: "string" }, options: { type: "array", items: { type: "string" }, minItems: 4, maxItems: 4 } }, required: ["question", "options"], additionalProperties: false } } },
+    }) });
+    const payload = await apiResponse.json();
+    if (!apiResponse.ok) throw new Error(payload.error?.message || "Translation failed.");
+    return json(response, 200, JSON.parse(responseText(payload)));
+  } catch (error) { return json(response, 500, { error: error instanceof Error ? error.message : "Translation failed." }); }
+}
+
+async function donate(request, response) {
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) return json(response, 503, { error: "Donations are not configured yet." });
+  try {
+    const body = await readBody(request);
+    if (body.action === "verify") {
+      const expected = createHmac("sha256", process.env.RAZORPAY_KEY_SECRET).update(`${body.razorpay_order_id}|${body.razorpay_payment_id}`).digest("hex");
+      return body.razorpay_order_id && body.razorpay_payment_id && body.razorpay_signature === expected ? json(response, 200, { verified: true }) : json(response, 400, { error: "Payment verification failed." });
+    }
+    const amount = Number(body.amount);
+    if (!Number.isInteger(amount) || amount < 5 || amount > 100) return json(response, 400, { error: "Choose an amount from ₹5 to ₹100." });
+    const authorization = Buffer.from(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`).toString("base64");
+    const apiResponse = await fetch("https://api.razorpay.com/v1/orders", { method: "POST", headers: { Authorization: `Basic ${authorization}`, "Content-Type": "application/json" }, body: JSON.stringify({ amount: amount * 100, currency: "INR", receipt: `adre_${Date.now()}`, notes: { purpose: "Support ADRE Quiz" } }) });
+    const order = await apiResponse.json();
+    if (!apiResponse.ok) throw new Error(order.error?.description || "Could not start payment.");
+    return json(response, 200, { id: order.id, amount: order.amount, currency: order.currency });
+  } catch (error) { return json(response, 500, { error: error instanceof Error ? error.message : "Payment could not be started." }); }
+}
+
 createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
   if (request.method === "POST" && url.pathname === "/api/answer") return answerQuestion(request, response);
+  if (request.method === "POST" && url.pathname === "/api/translate") return translateQuestion(request, response);
+  if (request.method === "POST" && url.pathname === "/api/donate") return donate(request, response);
   if (request.method === "GET" && url.pathname === "/api/config") {
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
     if (!supabaseUrl || !supabaseKey) return json(response, 503, { error: "Supabase authentication is not configured yet." });
-    return json(response, 200, { supabaseUrl, supabaseKey });
+    return json(response, 200, { supabaseUrl, supabaseKey, razorpayKeyId: process.env.RAZORPAY_KEY_ID || "", supportEmail: process.env.SUPPORT_EMAIL || "" });
   }
   if (request.method !== "GET" || !staticFiles[url.pathname]) return json(response, 404, { error: "Not found." });
   const [path, type] = staticFiles[url.pathname];

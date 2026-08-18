@@ -16,11 +16,11 @@ The API key is read only by the server route and is never sent to the browser. `
 2. Add `OPENAI_API_KEY` under Project Settings → Environment Variables.
 3. Add `SUPABASE_URL` and either `SUPABASE_PUBLISHABLE_KEY` or `SUPABASE_ANON_KEY`.
 4. Enable Google under Supabase Authentication → Providers and add the deployed site URL to Supabase's redirect allow list.
-5. For donations, add `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` from Razorpay Dashboard → Account & Settings → API Keys.
+5. For donations, add `CASHFREE_CLIENT_ID` and `CASHFREE_CLIENT_SECRET` from Cashfree Dashboard → Developers → API Keys. Set `CASHFREE_MODE=sandbox` while testing and `production` when going live.
 6. Add `SUPPORT_EMAIL` for help, feature requests, and requests for other exam apps.
 7. Optionally add `OPENAI_MODEL`, then redeploy so the environment changes take effect.
 
-Hindi, Assamese, and Boro translations are generated on demand with the configured OpenAI model. Razorpay amounts are restricted to ₹5–₹100 and payment signatures are verified on the server.
+Hindi, Assamese, and Boro translations are generated on demand with the configured OpenAI model. Cashfree donation amounts are restricted to ₹5–₹100 and successful orders are verified on the server.
 
 The files in `public/` are served statically and the handlers in `api/` run as Vercel Functions.
 

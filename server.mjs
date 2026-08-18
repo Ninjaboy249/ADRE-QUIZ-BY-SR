@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
 import { extname, join } from "node:path";
-import { createHmac } from "node:crypto";
+import { randomUUID } from "node:crypto";
 
 function loadLocalEnv() {
   for (const filename of [".env.local", ".env"]) {
@@ -114,20 +114,26 @@ async function translateQuestion(request, response) {
 }
 
 async function donate(request, response) {
-  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) return json(response, 503, { error: "Donations are not configured yet." });
+  if (!process.env.CASHFREE_CLIENT_ID || !process.env.CASHFREE_CLIENT_SECRET) return json(response, 503, { error: "Donations are not configured yet." });
   try {
     const body = await readBody(request);
     if (body.action === "verify") {
-      const expected = createHmac("sha256", process.env.RAZORPAY_KEY_SECRET).update(`${body.razorpay_order_id}|${body.razorpay_payment_id}`).digest("hex");
-      return body.razorpay_order_id && body.razorpay_payment_id && body.razorpay_signature === expected ? json(response, 200, { verified: true }) : json(response, 400, { error: "Payment verification failed." });
+      const orderId = String(body.orderId || "");
+      if (!/^adre_[A-Za-z0-9_-]{8,40}$/.test(orderId)) return json(response, 400, { error: "Invalid order." });
+      const apiResponse = await fetch(`${process.env.CASHFREE_MODE === "production" ? "https://api.cashfree.com/pg" : "https://sandbox.cashfree.com/pg"}/orders/${encodeURIComponent(orderId)}`, { headers: { "x-api-version": "2025-01-01", "x-client-id": process.env.CASHFREE_CLIENT_ID, "x-client-secret": process.env.CASHFREE_CLIENT_SECRET } });
+      const order = await apiResponse.json();
+      if (!apiResponse.ok) throw new Error(order.message || "Could not verify payment.");
+      return json(response, order.order_status === "PAID" ? 200 : 202, { verified: order.order_status === "PAID", status: order.order_status });
     }
     const amount = Number(body.amount);
+    const phone = String(body.phone || "").replace(/\D/g, "");
     if (!Number.isInteger(amount) || amount < 5 || amount > 100) return json(response, 400, { error: "Choose an amount from ₹5 to ₹100." });
-    const authorization = Buffer.from(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`).toString("base64");
-    const apiResponse = await fetch("https://api.razorpay.com/v1/orders", { method: "POST", headers: { Authorization: `Basic ${authorization}`, "Content-Type": "application/json" }, body: JSON.stringify({ amount: amount * 100, currency: "INR", receipt: `adre_${Date.now()}`, notes: { purpose: "Support ADRE Quiz" } }) });
+    if (!/^[6-9]\d{9}$/.test(phone)) return json(response, 400, { error: "Enter a valid 10-digit Indian mobile number." });
+    const orderId = `adre_${Date.now()}_${randomUUID().slice(0, 8)}`;
+    const apiResponse = await fetch(`${process.env.CASHFREE_MODE === "production" ? "https://api.cashfree.com/pg" : "https://sandbox.cashfree.com/pg"}/orders`, { method: "POST", headers: { "Content-Type": "application/json", "x-api-version": "2025-01-01", "x-client-id": process.env.CASHFREE_CLIENT_ID, "x-client-secret": process.env.CASHFREE_CLIENT_SECRET, "x-idempotency-key": randomUUID() }, body: JSON.stringify({ order_id: orderId, order_amount: amount, order_currency: "INR", order_note: "Support ADRE Quiz", customer_details: { customer_id: `donor_${randomUUID().replaceAll("-", "").slice(0, 16)}`, customer_phone: phone, customer_name: String(body.name || "ADRE supporter").slice(0, 100), customer_email: String(body.email || "").slice(0, 100) } }) });
     const order = await apiResponse.json();
-    if (!apiResponse.ok) throw new Error(order.error?.description || "Could not start payment.");
-    return json(response, 200, { id: order.id, amount: order.amount, currency: order.currency });
+    if (!apiResponse.ok) throw new Error(order.message || order.type || "Could not start payment.");
+    return json(response, 200, { orderId: order.order_id, paymentSessionId: order.payment_session_id });
   } catch (error) { return json(response, 500, { error: error instanceof Error ? error.message : "Payment could not be started." }); }
 }
 
@@ -140,7 +146,7 @@ createServer(async (request, response) => {
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
     if (!supabaseUrl || !supabaseKey) return json(response, 503, { error: "Supabase authentication is not configured yet." });
-    return json(response, 200, { supabaseUrl, supabaseKey, razorpayKeyId: process.env.RAZORPAY_KEY_ID || "", supportEmail: process.env.SUPPORT_EMAIL || "" });
+    return json(response, 200, { supabaseUrl, supabaseKey, cashfreeMode: process.env.CASHFREE_MODE === "production" ? "production" : "sandbox", cashfreeEnabled: Boolean(process.env.CASHFREE_CLIENT_ID && process.env.CASHFREE_CLIENT_SECRET), supportEmail: process.env.SUPPORT_EMAIL || "" });
   }
   if (request.method !== "GET" || !staticFiles[url.pathname]) return json(response, 404, { error: "Not found." });
   const [path, type] = staticFiles[url.pathname];

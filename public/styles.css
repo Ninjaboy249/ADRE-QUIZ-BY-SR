@@ -4,6 +4,7 @@
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; }
 body { margin:0; color:var(--ink); background:var(--paper); font-family:"DM Sans",sans-serif; }
+body { -webkit-tap-highlight-color:transparent; overflow-x:hidden; }
 .loading-page { min-height:100vh; display:grid; place-items:center; color:var(--muted); font-weight:600; }
 button { font:inherit; }
 button:focus-visible, a:focus-visible { outline:3px solid #d4b43c; outline-offset:3px; }
@@ -20,6 +21,7 @@ button:focus-visible, a:focus-visible { outline:3px solid #d4b43c; outline-offse
 .hero-stat { min-width:150px; border-left:1px solid #c8c8bf; padding-left:25px; display:flex; flex-direction:column; }
 .hero-stat strong { font:800 42px/1 "Libre Franklin",sans-serif; }.hero-stat span { margin-top:6px; color:var(--muted); }
 .workspace { max-width:1240px; margin:0 auto; padding:0 24px 72px; display:grid; grid-template-columns:245px minmax(0,1fr); gap:24px; align-items:start; }
+.mobile-paper-picker { display:none; }
 .sidebar { position:sticky; top:20px; }
 .section-label { margin:0 0 12px; }
 .paper-list { display:grid; gap:5px; }
@@ -50,5 +52,50 @@ button:focus-visible, a:focus-visible { outline:3px solid #d4b43c; outline-offse
 .navigator { width:min(720px,100%); max-height:82vh; overflow:auto; background:var(--card); border-radius:20px; padding:26px; box-shadow:0 30px 100px #07141155; }
 .navigator-head { display:flex; justify-content:space-between; align-items:start; }.navigator-head h2 { margin:0; font:700 22px "Libre Franklin",sans-serif; }.navigator-head button { border:0; background:#ebe8df; border-radius:50%; width:36px; height:36px; font-size:25px; cursor:pointer; }
 .question-grid { margin-top:24px; display:grid; grid-template-columns:repeat(10,1fr); gap:7px; }.question-grid button { aspect-ratio:1; border:1px solid var(--line); background:#fff; border-radius:8px; cursor:pointer; color:var(--muted); }.question-grid button.done { background:#dce9c9; color:var(--green); border-color:#b6ca95; }.question-grid button.current { color:#fff; background:var(--green); border-color:var(--green); }
-@media (max-width:800px) { .hero { padding-top:42px; }.hero-stat,.sidebar { display:none; }.workspace { grid-template-columns:1fr; padding-inline:14px; }.options { grid-template-columns:1fr; }.question-grid { grid-template-columns:repeat(6,1fr); } }
-@media (max-width:520px) { .topbar { height:64px; padding:0 15px; }.hero { padding:34px 17px 30px; }.hero h1 { font-size:40px; }.hero-copy { font-size:15px; }.workspace { padding-bottom:35px; }.quiz-card { border-radius:17px; }.quiz-meta { padding:15px 17px 13px; }.quiz-meta span { max-width:52%; }.question-area { padding:30px 18px 28px; }.question-area h2 { font-size:22px; margin-bottom:24px; }.option { min-height:62px; }.quiz-actions { padding:14px; position:sticky; bottom:0; background:rgba(255,253,248,.95); }.quiz-actions button { padding:11px 14px; }.primary { min-width:0; flex:1; }.navigator { padding:21px 16px; }.question-grid { grid-template-columns:repeat(5,1fr); } }
+@media (max-width:800px) {
+  .topbar { position:sticky; top:0; z-index:10; background:rgba(245,242,233,.94); backdrop-filter:blur(12px); }
+  .hero { padding-top:38px; }
+  .hero-stat,.sidebar { display:none; }
+  .workspace { grid-template-columns:1fr; padding-inline:14px; gap:12px; }
+  .mobile-paper-picker { display:grid; gap:7px; }
+  .mobile-paper-picker label { color:var(--green); text-transform:uppercase; letter-spacing:.12em; font-size:11px; font-weight:700; }
+  .mobile-paper-picker select { width:100%; min-height:48px; appearance:none; border:1px solid var(--line); border-radius:12px; padding:0 44px 0 14px; color:var(--ink); background:var(--card) linear-gradient(45deg,transparent 50%,var(--green) 50%) calc(100% - 20px) 20px/6px 6px no-repeat; font:600 15px "DM Sans",sans-serif; }
+  .options { grid-template-columns:1fr; }
+  .option { touch-action:manipulation; }
+  .question-grid { grid-template-columns:repeat(6,1fr); }
+}
+@media (max-width:520px) {
+  .topbar { height:60px; padding:0 14px; }
+  .brand { gap:8px; font-size:15px; }
+  .brand-mark { width:34px; height:34px; border-radius:9px; }
+  .score-pill { min-height:40px; padding:7px 11px; }
+  .score-pill small { display:none; }
+  .hero { padding:25px 16px 22px; }
+  .eyebrow { margin:0 0 8px; font-size:10px; letter-spacing:.11em; }
+  .hero h1 { margin:0 0 9px; font-size:clamp(32px,10vw,40px); line-height:1.04; }
+  .hero-copy { font-size:14px; line-height:1.5; }
+  .workspace { padding-inline:10px; padding-bottom:24px; }
+  .quiz-card { border-radius:15px; box-shadow:0 10px 28px rgba(28,43,38,.07); }
+  .quiz-meta { min-height:50px; padding:13px 14px 11px; align-items:center; gap:10px; font-size:12px; }
+  .quiz-meta span { max-width:55%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .quiz-meta button { min-height:36px; padding:0; }
+  .question-area { padding:25px 14px 24px; }
+  .question-number { margin-bottom:10px; font-size:10px; }
+  .question-area h2 { font-size:20px; line-height:1.38; margin-bottom:20px; }
+  .options { gap:10px; }
+  .option { min-height:60px; padding:11px 42px 11px 11px; gap:11px; border-radius:12px; font-size:15px; }
+  .option.selected { padding:10px 41px 10px 10px; }
+  .letter { flex-basis:36px; width:36px; height:36px; }
+  .state-icon { right:14px; }
+  .explanation { margin-top:22px; padding:18px 16px; }
+  .logic { grid-template-columns:1fr; gap:6px; }
+  .quiz-actions { z-index:5; padding:12px 14px calc(12px + env(safe-area-inset-bottom)); position:sticky; bottom:0; background:rgba(255,253,248,.96); backdrop-filter:blur(10px); }
+  .quiz-actions button { min-height:48px; padding:10px 13px; }
+  .primary { min-width:0; flex:1; }
+  .modal-backdrop { padding:0; align-items:end; }
+  .navigator { width:100%; max-height:85dvh; border-radius:20px 20px 0 0; padding:22px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .navigator-head button { width:44px; height:44px; }
+  .question-grid { grid-template-columns:repeat(5,1fr); gap:8px; }
+  .question-grid button { min-height:44px; }
+}
+@media (hover:none) { .option:hover:not(:disabled) { transform:none; } }

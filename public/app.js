@@ -17,6 +17,7 @@ function render() {
     <header class="topbar"><a class="brand" href="#top"><span class="brand-mark">AQ</span><span>ADRE Quiz</span></a><button class="score-pill" data-action="navigator"><span>${answered}/${set.length}</span><small>answered</small></button></header>
     <section class="hero" id="top"><div><p class="eyebrow">Official paper practice · English only</p><h1>Prepare with every question.</h1><p class="hero-copy">1,205 MCQs from ADRE 2022 and 2024, with clear AI-powered answers and logic.</p></div><div class="hero-stat"><strong>10</strong><span>complete papers</span></div></section>
     <section class="workspace">
+      <div class="mobile-paper-picker"><label for="paper-select">Practice paper</label><select id="paper-select">${state.papers.map((paper) => `<option value="${paper.id}" ${paper.id === state.paperId ? "selected" : ""}>${escapeHtml(paper.title.replace("ADRE ", ""))} · ${paper.count} questions</option>`).join("")}</select></div>
       <aside class="sidebar"><p class="section-label">Choose a paper</p><div class="paper-list">${state.papers.map((paper) => `<button class="paper ${paper.id === state.paperId ? "active" : ""}" data-paper="${paper.id}"><span>${escapeHtml(paper.title.replace("ADRE ", ""))}</span><small>${paper.count} questions</small></button>`).join("")}</div><div class="mini-score"><span>Current score</span><strong>${correct}<small> / ${answered}</small></strong></div></aside>
       <article class="quiz-card"><div class="quiz-meta"><span>${escapeHtml(question.paper)}</span><button data-action="navigator">Question ${state.index + 1} of ${set.length}</button></div><div class="progress"><span style="width:${((state.index + 1) / set.length) * 100}%"></span></div>
         <div class="question-area"><p class="question-number">Question ${question.number}</p><h2>${escapeHtml(question.question)}</h2><div class="options">${question.options.map((option, index) => {
@@ -49,6 +50,15 @@ app.addEventListener("click", (event) => {
   if (target.dataset.jump !== undefined) return go(Number(target.dataset.jump));
   const action = target.dataset.action;
   if (action === "check") check(); else if (action === "previous") go(state.index - 1); else if (action === "next") go(state.index + 1); else if (action === "navigator") { state.navigator = true; render(); } else if (action === "close") { state.navigator = false; render(); }
+});
+
+app.addEventListener("change", (event) => {
+  if (event.target.id !== "paper-select") return;
+  state.paperId = event.target.value;
+  state.index = 0;
+  state.selected = state.results[currentSet()[0].id]?.selected ?? null;
+  state.error = "";
+  render();
 });
 
 fetch("/data/questions.json").then((response) => response.json()).then((questions) => {

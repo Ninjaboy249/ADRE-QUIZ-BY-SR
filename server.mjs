@@ -22,7 +22,7 @@ const port = Number(process.env.PORT || 3000);
 const staticFiles = {
   "/": ["public/index.html", "text/html; charset=utf-8"],
   "/app.js": ["public/app.js", "text/javascript; charset=utf-8"],
-  "/styles.css": ["app/globals.css", "text/css; charset=utf-8"],
+  "/styles.css": ["public/styles.css", "text/css; charset=utf-8"],
   "/data/questions.json": ["data/questions.json", "application/json; charset=utf-8"],
 };
 

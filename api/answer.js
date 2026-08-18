@@ -22,6 +22,13 @@ export default async function handler(request, response) {
   }
 
   try {
+    const token = request.headers.authorization?.replace(/^Bearer\s+/i, "");
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
+    if (!token || !supabaseUrl || !supabaseKey) return response.status(401).json({ error: "Please sign in again." });
+    const authResponse = await fetch(`${supabaseUrl}/auth/v1/user`, { headers: { Authorization: `Bearer ${token}`, apikey: supabaseKey } });
+    if (!authResponse.ok) return response.status(401).json({ error: "Your session has expired. Please sign in again." });
+
     const question = questionMap.get(request.body?.questionId);
     if (!question) return response.status(404).json({ error: "Question not found." });
     if (!process.env.OPENAI_API_KEY) {

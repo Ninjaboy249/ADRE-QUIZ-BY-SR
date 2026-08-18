@@ -21,6 +21,7 @@ const port = Number(process.env.PORT || 3000);
 
 const staticFiles = {
   "/": ["public/index.html", "text/html; charset=utf-8"],
+  "/auth.js": ["public/auth.js", "text/javascript; charset=utf-8"],
   "/app.js": ["public/app.js", "text/javascript; charset=utf-8"],
   "/styles.css": ["public/styles.css", "text/css; charset=utf-8"],
   "/data/questions.json": ["data/questions.json", "application/json; charset=utf-8"],
@@ -51,6 +52,13 @@ function responseText(payload) {
 
 async function answerQuestion(request, response) {
   try {
+    const token = request.headers.authorization?.replace(/^Bearer\s+/i, "");
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
+    if (!token || !supabaseUrl || !supabaseKey) return json(response, 401, { error: "Please sign in again." });
+    const authResponse = await fetch(`${supabaseUrl}/auth/v1/user`, { headers: { Authorization: `Bearer ${token}`, apikey: supabaseKey } });
+    if (!authResponse.ok) return json(response, 401, { error: "Your session has expired. Please sign in again." });
+
     const { questionId } = await readBody(request);
     const question = questionMap.get(questionId);
     if (!question) return json(response, 404, { error: "Question not found." });
@@ -88,6 +96,12 @@ async function answerQuestion(request, response) {
 createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
   if (request.method === "POST" && url.pathname === "/api/answer") return answerQuestion(request, response);
+  if (request.method === "GET" && url.pathname === "/api/config") {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseKey) return json(response, 503, { error: "Supabase authentication is not configured yet." });
+    return json(response, 200, { supabaseUrl, supabaseKey });
+  }
   if (request.method !== "GET" || !staticFiles[url.pathname]) return json(response, 404, { error: "Not found." });
   const [path, type] = staticFiles[url.pathname];
   try {

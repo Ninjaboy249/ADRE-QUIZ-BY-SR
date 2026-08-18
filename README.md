@@ -14,7 +14,9 @@ The API key is read only by the server route and is never sent to the browser. `
 
 1. Import the repository into Vercel and leave the framework preset as **Other**.
 2. Add `OPENAI_API_KEY` under Project Settings → Environment Variables.
-3. Optionally add `OPENAI_MODEL`, then redeploy so the environment changes take effect.
+3. Add `SUPABASE_URL` and either `SUPABASE_PUBLISHABLE_KEY` or `SUPABASE_ANON_KEY`.
+4. Enable Google under Supabase Authentication → Providers and add the deployed site URL to Supabase's redirect allow list.
+5. Optionally add `OPENAI_MODEL`, then redeploy so the environment changes take effect.
 
 The files in `public/` are served statically and the handlers in `api/` run as Vercel Functions.
 

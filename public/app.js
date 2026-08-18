@@ -1,5 +1,6 @@
 const letters = ["A", "B", "C", "D"];
 const app = document.querySelector("#app");
+const auth = window.quizAuth;
 const state = { questions: [], papers: [], paperId: "", index: 0, selected: null, results: {}, loading: false, error: "", navigator: false };
 
 const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
@@ -14,7 +15,7 @@ function render() {
   const answered = set.filter((item) => state.results[item.id]).length;
   const correct = set.filter((item) => state.results[item.id]?.selected === state.results[item.id]?.correctIndex).length;
   app.innerHTML = `
-    <header class="topbar"><a class="brand" href="#top"><span class="brand-mark">AQ</span><span>ADRE Quiz</span></a><button class="score-pill" data-action="navigator"><span>${answered}/${set.length}</span><small>answered</small></button></header>
+    <header class="topbar"><a class="brand" href="#top"><span class="brand-mark">AQ</span><span>ADRE Quiz</span></a><div class="topbar-actions"><button class="score-pill" data-action="navigator"><span>${answered}/${set.length}</span><small>answered</small></button><button class="user-menu" data-action="signout" title="Sign out">${auth.session.user.user_metadata?.avatar_url ? `<img src="${escapeHtml(auth.session.user.user_metadata.avatar_url)}" alt="">` : "↗"}<span>${escapeHtml(auth.session.user.user_metadata?.full_name?.split(" ")[0] || "Account")}</span></button></div></header>
     <section class="hero" id="top"><div><p class="eyebrow">Official paper practice · English only</p><h1>Prepare with every question.</h1><p class="hero-copy">1,205 MCQs from ADRE 2022 and 2024, with clear AI-powered answers and logic.</p></div><div class="hero-stat"><strong>10</strong><span>complete papers</span></div></section>
     <section class="workspace">
       <div class="mobile-paper-picker"><label for="paper-select">Practice paper</label><select id="paper-select">${state.papers.map((paper) => `<option value="${paper.id}" ${paper.id === state.paperId ? "selected" : ""}>${escapeHtml(paper.title.replace("ADRE ", ""))} · ${paper.count} questions</option>`).join("")}</select></div>
@@ -38,7 +39,7 @@ function go(index) { const set = currentSet(); state.index = Math.max(0, Math.mi
 async function check() {
   if (state.selected === null || state.loading) return;
   const question = currentSet()[state.index]; state.loading = true; state.error = ""; render();
-  try { const response = await fetch("/api/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ questionId: question.id }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Could not check the answer."); state.results[question.id] = { ...data, selected: state.selected }; }
+  try { const response = await fetch("/api/answer", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${auth.session.access_token}` }, body: JSON.stringify({ questionId: question.id }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error || "Could not check the answer."); state.results[question.id] = { ...data, selected: state.selected }; }
   catch (error) { state.error = error.message || "Could not check the answer."; }
   finally { state.loading = false; render(); }
 }
@@ -49,7 +50,7 @@ app.addEventListener("click", (event) => {
   if (target.dataset.paper) { state.paperId = target.dataset.paper; state.index = 0; state.selected = state.results[currentSet()[0].id]?.selected ?? null; state.error = ""; render(); return; }
   if (target.dataset.jump !== undefined) return go(Number(target.dataset.jump));
   const action = target.dataset.action;
-  if (action === "check") check(); else if (action === "previous") go(state.index - 1); else if (action === "next") go(state.index + 1); else if (action === "navigator") { state.navigator = true; render(); } else if (action === "close") { state.navigator = false; render(); }
+  if (action === "check") check(); else if (action === "previous") go(state.index - 1); else if (action === "next") go(state.index + 1); else if (action === "navigator") { state.navigator = true; render(); } else if (action === "close") { state.navigator = false; render(); } else if (action === "signout") { auth.supabase.auth.signOut(); }
 });
 
 app.addEventListener("change", (event) => {

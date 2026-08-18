@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Franklin:wght@600;700;800&display=swap');
+
+:root { --ink:#17272a; --muted:#6e7774; --paper:#f5f2e9; --card:#fffdf8; --green:#194f43; --lime:#ddec95; --line:#deddd5; --red:#b5473e; }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; color:var(--ink); background:var(--paper); font-family:"DM Sans",sans-serif; }
+.loading-page { min-height:100vh; display:grid; place-items:center; color:var(--muted); font-weight:600; }
+button { font:inherit; }
+button:focus-visible, a:focus-visible { outline:3px solid #d4b43c; outline-offset:3px; }
+.shell { min-height:100vh; }
+.topbar { height:72px; padding:0 max(24px,calc((100vw - 1240px)/2)); display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(23,39,42,.12); }
+.brand { color:var(--ink); text-decoration:none; display:flex; align-items:center; gap:11px; font-family:"Libre Franklin",sans-serif; font-weight:800; }
+.brand-mark { width:38px; height:38px; display:grid; place-items:center; color:#fff; background:var(--green); border-radius:10px; font-size:13px; letter-spacing:.03em; }
+.score-pill { border:0; background:var(--ink); color:#fff; border-radius:999px; display:flex; align-items:baseline; gap:6px; padding:9px 15px; cursor:pointer; }
+.score-pill span { font-weight:700; }.score-pill small { color:#c8cfcc; }
+.hero { max-width:1240px; margin:auto; padding:62px 24px 48px; display:flex; justify-content:space-between; align-items:end; gap:32px; }
+.eyebrow,.section-label,.question-number { color:var(--green); text-transform:uppercase; letter-spacing:.14em; font-weight:700; font-size:12px; }
+.hero h1 { margin:8px 0 12px; max-width:720px; font:800 clamp(38px,6vw,72px)/1 "Libre Franklin",sans-serif; letter-spacing:-.055em; }
+.hero-copy { margin:0; max-width:580px; color:var(--muted); font-size:17px; line-height:1.65; }
+.hero-stat { min-width:150px; border-left:1px solid #c8c8bf; padding-left:25px; display:flex; flex-direction:column; }
+.hero-stat strong { font:800 42px/1 "Libre Franklin",sans-serif; }.hero-stat span { margin-top:6px; color:var(--muted); }
+.workspace { max-width:1240px; margin:0 auto; padding:0 24px 72px; display:grid; grid-template-columns:245px minmax(0,1fr); gap:24px; align-items:start; }
+.sidebar { position:sticky; top:20px; }
+.section-label { margin:0 0 12px; }
+.paper-list { display:grid; gap:5px; }
+.paper { border:0; border-radius:10px; padding:12px 14px; background:transparent; color:var(--ink); display:flex; justify-content:space-between; align-items:center; text-align:left; cursor:pointer; }
+.paper span { font-weight:600; }.paper small { color:var(--muted); font-size:11px; }.paper.active { background:var(--green); color:#fff; }.paper.active small { color:#c8ded7; }
+.mini-score { margin-top:22px; padding:18px; background:#e7e1d3; border-radius:14px; display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:13px; }
+.mini-score strong { color:var(--ink); font:800 22px "Libre Franklin",sans-serif; }.mini-score strong small { font-size:12px; color:var(--muted); }
+.quiz-card { overflow:hidden; background:var(--card); border:1px solid var(--line); border-radius:22px; box-shadow:0 18px 50px rgba(28,43,38,.08); }
+.quiz-meta { padding:20px 26px 15px; display:flex; justify-content:space-between; color:var(--muted); font-size:13px; }
+.quiz-meta button { color:var(--green); border:0; background:none; cursor:pointer; font-weight:700; }
+.progress { height:3px; background:#e9e6de; }.progress span { display:block; height:100%; background:var(--green); transition:width .3s; }
+.question-area { padding:42px clamp(24px,6vw,70px) 38px; }
+.question-number { margin:0 0 13px; }
+.question-area h2 { margin:0 0 30px; max-width:800px; font:700 clamp(22px,3vw,32px)/1.38 "Libre Franklin",sans-serif; letter-spacing:-.025em; white-space:pre-wrap; }
+.options { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.option { min-height:68px; position:relative; border:1px solid var(--line); border-radius:13px; background:#fff; padding:13px 46px 13px 14px; display:flex; align-items:center; gap:13px; color:var(--ink); text-align:left; cursor:pointer; line-height:1.45; transition:.15s ease; }
+.option:hover:not(:disabled) { border-color:#66877f; transform:translateY(-1px); }.option.selected { border:2px solid var(--green); background:#f0f6ed; padding:12px 45px 12px 13px; }
+.option.correct { border-color:#4f7e52; background:#edf6e6; }.option.wrong { border-color:#c77a72; background:#fbefec; }
+.letter { flex:0 0 37px; width:37px; height:37px; border-radius:9px; display:grid; place-items:center; background:#ece9df; font-weight:700; }
+.selected .letter,.correct .letter { color:#fff; background:var(--green); }.wrong .letter { color:#fff; background:var(--red); }.state-icon { position:absolute; right:18px; font-size:24px; font-weight:700; }
+.error-box { margin-top:20px; border:1px solid #e5b9b3; color:#843b34; background:#fff1ef; border-radius:12px; padding:14px 16px; }
+.explanation { margin-top:27px; padding:24px; background:#f4efe4; border-left:4px solid #c87363; border-radius:4px 14px 14px 4px; }.explanation.right { border-color:#6b934d; }
+.verdict { margin:0 0 15px!important; color:var(--green)!important; font-weight:700; }.explanation h3 { margin:0 0 7px; font:700 17px "Libre Franklin",sans-serif; }.explanation p { color:#56615e; line-height:1.65; margin:0; }
+.logic { margin-top:15px; padding-top:14px; border-top:1px solid #d8d3c7; display:grid; grid-template-columns:60px 1fr; gap:12px; }.logic span { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--green); }
+.quiz-actions { padding:20px 26px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:12px; }
+.quiz-actions button { border-radius:10px; padding:12px 19px; font-weight:700; cursor:pointer; }.quiz-actions button:disabled { opacity:.4; cursor:not-allowed; }.secondary { color:var(--ink); background:transparent; border:1px solid var(--line); }.primary { color:#fff; background:var(--green); border:1px solid var(--green); min-width:155px; }
+.modal-backdrop { position:fixed; inset:0; z-index:20; padding:20px; background:rgba(15,29,29,.58); display:grid; place-items:center; backdrop-filter:blur(4px); }
+.navigator { width:min(720px,100%); max-height:82vh; overflow:auto; background:var(--card); border-radius:20px; padding:26px; box-shadow:0 30px 100px #07141155; }
+.navigator-head { display:flex; justify-content:space-between; align-items:start; }.navigator-head h2 { margin:0; font:700 22px "Libre Franklin",sans-serif; }.navigator-head button { border:0; background:#ebe8df; border-radius:50%; width:36px; height:36px; font-size:25px; cursor:pointer; }
+.question-grid { margin-top:24px; display:grid; grid-template-columns:repeat(10,1fr); gap:7px; }.question-grid button { aspect-ratio:1; border:1px solid var(--line); background:#fff; border-radius:8px; cursor:pointer; color:var(--muted); }.question-grid button.done { background:#dce9c9; color:var(--green); border-color:#b6ca95; }.question-grid button.current { color:#fff; background:var(--green); border-color:var(--green); }
+@media (max-width:800px) { .hero { padding-top:42px; }.hero-stat,.sidebar { display:none; }.workspace { grid-template-columns:1fr; padding-inline:14px; }.options { grid-template-columns:1fr; }.question-grid { grid-template-columns:repeat(6,1fr); } }
+@media (max-width:520px) { .topbar { height:64px; padding:0 15px; }.hero { padding:34px 17px 30px; }.hero h1 { font-size:40px; }.hero-copy { font-size:15px; }.workspace { padding-bottom:35px; }.quiz-card { border-radius:17px; }.quiz-meta { padding:15px 17px 13px; }.quiz-meta span { max-width:52%; }.question-area { padding:30px 18px 28px; }.question-area h2 { font-size:22px; margin-bottom:24px; }.option { min-height:62px; }.quiz-actions { padding:14px; position:sticky; bottom:0; background:rgba(255,253,248,.95); }.quiz-actions button { padding:11px 14px; }.primary { min-width:0; flex:1; }.navigator { padding:21px 16px; }.question-grid { grid-template-columns:repeat(5,1fr); } }

@@ -39,6 +39,7 @@ async function initialize() {
     const config = await response.json();
     if (!response.ok) throw new Error(config.error || "Authentication is not configured.");
     supabase = createClient(config.supabaseUrl, config.supabaseKey);
+    window.appConfig = config;
     supabase.auth.onAuthStateChange((_event, session) => {
       if (window.quizAuth) Object.assign(window.quizAuth, { supabase, session });
       else window.quizAuth = { supabase, session };

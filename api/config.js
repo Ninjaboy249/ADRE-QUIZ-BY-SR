@@ -3,5 +3,5 @@ export default function handler(request, response) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseKey) return response.status(503).json({ error: "Supabase authentication is not configured yet." });
-  return response.status(200).json({ supabaseUrl, supabaseKey });
+  return response.status(200).json({ supabaseUrl, supabaseKey, razorpayKeyId: process.env.RAZORPAY_KEY_ID || "", supportEmail: process.env.SUPPORT_EMAIL || "" });
 }

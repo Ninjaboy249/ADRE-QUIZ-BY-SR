@@ -142,3 +142,25 @@ button:focus-visible, a:focus-visible { outline:3px solid #d4b43c; outline-offse
 }
 @media (max-width:520px) { .auth-panel { padding:14px; }.auth-card { padding:38px 22px; border-radius:23px; }.auth-card h2 { font-size:27px; }.trust-row { flex-direction:column; gap:7px; }.auth-subtitle { margin-bottom:24px; } }
 @media (hover:none) { .option:hover:not(:disabled) { transform:none; } }
+.brand-button { border:0; padding:0; background:transparent; cursor:pointer; }
+.profile-wrap { position:relative; }
+.profile-popover { position:absolute; z-index:30; top:calc(100% + 10px); right:0; width:250px; padding:8px; border:1px solid var(--line); border-radius:15px; background:#fff; box-shadow:0 18px 55px rgba(18,43,37,.2); }
+.profile-summary { padding:10px 11px 13px; display:grid; gap:3px; border-bottom:1px solid var(--line); overflow:hidden; }
+.profile-summary small { color:var(--muted); overflow:hidden; text-overflow:ellipsis; }
+.profile-popover>button { width:100%; margin-top:5px; border:0; border-radius:9px; padding:11px; text-align:left; color:var(--green); background:transparent; cursor:pointer; font-weight:700; }
+.profile-popover>button:hover { background:#f2f4eb; }.profile-popover .logout-item { color:var(--red); }
+.dashboard-hero { max-width:1240px; margin:auto; padding:70px 24px 35px; }
+.dashboard-hero h1,.affairs-heading h1 { margin:8px 0 12px; font:800 clamp(36px,5vw,62px)/1.05 "Libre Franklin",sans-serif; letter-spacing:-.05em; }
+.dashboard-hero>p:last-child,.affairs-heading p { color:var(--muted); font-size:17px; }
+.dashboard-grid { max-width:1240px; margin:auto; padding:0 24px 80px; display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.dashboard-card { min-height:340px; padding:28px; border:1px solid var(--line); border-radius:22px; display:flex; flex-direction:column; align-items:flex-start; text-align:left; color:var(--ink); background:var(--card); cursor:pointer; box-shadow:0 14px 40px rgba(28,43,38,.06); transition:.2s ease; }
+.dashboard-card:hover { transform:translateY(-5px); box-shadow:0 22px 50px rgba(28,43,38,.12); }.dashboard-card.primary-card { color:#fff; border-color:var(--green); background:var(--green); }.dashboard-card.current-card { background:#eef3d6; }
+.dashboard-card small { margin-top:25px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; opacity:.7; }.dashboard-card h2 { margin:10px 0; font:800 27px/1.15 "Libre Franklin",sans-serif; }.dashboard-card p { margin:0; line-height:1.6; opacity:.75; }.dashboard-card b { margin-top:auto; }
+.card-icon { width:55px; height:55px; border-radius:15px; display:grid; place-items:center; color:var(--green); background:var(--lime); font-weight:800; }
+.affairs-page { max-width:1020px; margin:auto; padding:45px 24px 90px; }.back-link { border:0; padding:8px 0; color:var(--green); background:transparent; cursor:pointer; font-weight:700; }
+.affairs-heading { margin:30px 0; display:flex; justify-content:space-between; align-items:end; gap:25px; }.affairs-heading .primary { min-height:48px; }
+.affairs-updated { margin-bottom:15px; color:var(--muted); font-size:13px; }.affairs-list { display:grid; gap:12px; }.affairs-list article { padding:23px; border:1px solid var(--line); border-radius:16px; display:flex; gap:20px; background:var(--card); }.affairs-list article>span { color:var(--green); font-weight:800; }.affairs-list h2 { margin:0 0 7px; font-size:19px; }.affairs-list p { margin:0; color:var(--muted); line-height:1.6; }
+.qa-section { margin-top:45px; }.qa-section>h2 { font:800 30px "Libre Franklin",sans-serif; }.qa-section details { margin-top:10px; border:1px solid var(--line); border-radius:13px; background:var(--card); }.qa-section summary { padding:17px; display:flex; gap:13px; cursor:pointer; font-weight:700; }.qa-section summary span { color:var(--green); }.qa-section details p { margin:0; padding:0 17px 18px 48px; color:var(--muted); }
+.affairs-empty,.affairs-loading { min-height:330px; border:1px dashed #bbc1b9; border-radius:20px; display:grid; place-content:center; justify-items:center; text-align:center; padding:30px; }.affairs-empty p,.affairs-loading p { color:var(--muted); }.affairs-loading span { width:38px; height:38px; border:4px solid var(--line); border-top-color:var(--green); border-radius:50%; animation:spin 1s linear infinite; }@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:800px){.dashboard-grid{grid-template-columns:1fr}.dashboard-card{min-height:260px}.dashboard-hero{padding-top:42px}.affairs-heading{align-items:stretch;flex-direction:column}.profile-popover{position:fixed;top:68px;right:12px;left:12px;width:auto}.icon-action{display:none}.profile-popover button{min-height:48px}.profile-popover button:first-of-type{display:block}.dashboard-grid{padding-inline:14px}.dashboard-hero,.affairs-page{padding-inline:16px}}
+@media(max-width:520px){.dashboard-hero h1{font-size:36px}.dashboard-card{padding:22px}.affairs-list article{padding:18px}.profile-popover{top:62px}.topbar-actions .language-select{display:none}}

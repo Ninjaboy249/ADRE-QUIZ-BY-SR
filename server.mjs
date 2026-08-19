@@ -113,6 +113,32 @@ async function translateQuestion(request, response) {
   } catch (error) { return json(response, 500, { error: error instanceof Error ? error.message : "Translation failed." }); }
 }
 
+async function currentAffairs(request, response) {
+  try {
+    const token = request.headers.authorization?.replace(/^Bearer\s+/i, "");
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
+    if (!token || !supabaseUrl || !supabaseKey) return json(response, 401, { error: "Please sign in again." });
+    const authResponse = await fetch(`${supabaseUrl}/auth/v1/user`, { headers: { Authorization: `Bearer ${token}`, apikey: supabaseKey } });
+    if (!authResponse.ok) return json(response, 401, { error: "Your session has expired. Please sign in again." });
+    if (!process.env.OPENAI_API_KEY) return json(response, 503, { error: "OPENAI_API_KEY is not configured." });
+    const year = new Date().getFullYear();
+    const apiResponse = await fetch("https://api.openai.com/v1/responses", { method: "POST", headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || "gpt-5.6-luna", reasoning: { effort: "low" }, tools: [{ type: "web_search" }],
+      instructions: `Research factual, recent Assam current affairs for ${year}. Focus on government, economy, awards, environment, culture, infrastructure and sports useful for ADRE exams. Prefer authoritative recent sources. Never invent an event. Return concise study notes and five direct question-answer pairs.`,
+      input: `Create an Assam current-affairs study briefing for ${year}, current through today.`,
+      text: { format: { type: "json_schema", name: "assam_current_affairs", strict: true, schema: { type: "object", properties: {
+        year: { type: "string" },
+        updates: { type: "array", minItems: 5, maxItems: 7, items: { type: "object", properties: { title: { type: "string" }, summary: { type: "string" } }, required: ["title", "summary"], additionalProperties: false } },
+        questions: { type: "array", minItems: 5, maxItems: 5, items: { type: "object", properties: { question: { type: "string" }, answer: { type: "string" } }, required: ["question", "answer"], additionalProperties: false } },
+      }, required: ["year", "updates", "questions"], additionalProperties: false } } },
+    }) });
+    const payload = await apiResponse.json();
+    if (!apiResponse.ok) throw new Error(payload.error?.message || "OpenAI request failed.");
+    return json(response, 200, JSON.parse(responseText(payload)));
+  } catch (error) { return json(response, 500, { error: error instanceof Error ? error.message : "Unable to generate current affairs." }); }
+}
+
 async function donate(request, response) {
   if (!process.env.CASHFREE_CLIENT_ID || !process.env.CASHFREE_CLIENT_SECRET) return json(response, 503, { error: "Donations are not configured yet." });
   try {
@@ -141,6 +167,7 @@ createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host || "localhost"}`);
   if (request.method === "POST" && url.pathname === "/api/answer") return answerQuestion(request, response);
   if (request.method === "POST" && url.pathname === "/api/translate") return translateQuestion(request, response);
+  if (request.method === "POST" && url.pathname === "/api/current-affairs") return currentAffairs(request, response);
   if (request.method === "POST" && url.pathname === "/api/donate") return donate(request, response);
   if (request.method === "GET" && url.pathname === "/api/config") {
     const supabaseUrl = process.env.SUPABASE_URL;

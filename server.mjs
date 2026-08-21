@@ -26,7 +26,6 @@ const staticFiles = {
   "/app.js": ["public/app.js", "text/javascript; charset=utf-8"],
   "/styles.css": ["public/styles.css", "text/css; charset=utf-8"],
   "/data/questions.json": ["data/questions.json", "application/json; charset=utf-8"],
-  "/assets/ADRE_merged.pdf": ["public/assets/ADRE_merged.pdf", "application/pdf"],
 };
 
 function json(response, status, body) {

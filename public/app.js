@@ -1,7 +1,8 @@
 const letters=["A","B","C","D"],app=document.querySelector("#app"),auth=window.quizAuth,config=window.appConfig||{};
 const languageNames={en:"English",hi:"हिन्दी",as:"অসমীয়া",brx:"बड़ो"};
+const subjectNames={all:"All subjects",math:"General Mathematics",social:"Social Studies",gk:"General Knowledge / Awareness & Current Affairs",english:"General English",reasoning:"Logical Reasoning & Mental Ability"};
 const saved=(()=>{try{return JSON.parse(localStorage.getItem("adreQuizResults")||"{}")}catch{return {}}})();
-const state={questions:[],papers:[],paperId:"",index:0,selected:null,results:saved,loading:false,translating:false,error:"",language:localStorage.getItem("adreQuizLanguage")||"en",translations:{},navigator:false,modal:"",donationStatus:"",view:"dashboard",profileOpen:false,mockQuestions:[],currentAffairs:null};
+const state={questions:[],papers:[],paperId:"",subject:"all",index:0,selected:null,results:saved,loading:false,translating:false,error:"",language:localStorage.getItem("adreQuizLanguage")||"en",translations:{},navigator:false,modal:"",donationStatus:"",view:"dashboard",profileOpen:false,mockQuestions:[],currentAffairs:null};
 const esc=(v="")=>String(v).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[c]);
 const math=(value="")=>{
  let text=esc(value)
@@ -19,7 +20,18 @@ const math=(value="")=>{
  text=text.replace(/The value of 1849 is/i,"The value of √1849 is");
  return text.replace(/\s*([=+×÷≠])\s*/g," $1 ").replace(/\s{2,}/g," ").trim();
 };
-const currentSet=()=>state.mockQuestions.length?state.mockQuestions:state.questions.filter(q=>q.paperId===state.paperId);
+const inRange=(n,ranges)=>ranges?.some(([a,b])=>n>=a&&n<=b);
+const sectionRanges={
+ "2022-p1":{math:[[61,85]],english:[[86,100]],reasoning:[[101,135]]},"2022-p2":{math:[[61,85]],english:[[86,100]],reasoning:[[101,135]]},
+ "2022-p3":{math:[[41,60]],english:[[61,80]],reasoning:[[81,100]]},"2022-p4":{reasoning:[[51,70]],math:[[81,90]],english:[[91,100]]},"2022-p5":{math:[[41,60]],english:[[61,80]],reasoning:[[81,100]]},
+ "2024-p1":{english:[[1,10]],math:[[41,60]]},"2024-p2":{math:[[66,90]],reasoning:[[91,125]],english:[[126,135]]},"2024-p3":{reasoning:[[61,80]],math:[[81,120]],english:[[121,150]]},
+ "2024-p4":{math:[[11,70],[111,120]],english:[[131,150]]},"2024-p5":{math:[[11,20],[91,100]],social:[[21,30],[81,90]],english:[[31,40],[61,70]],reasoning:[[41,50],[71,80]]}
+};
+const socialTerms=/\b(history|historical|kingdom|empire|dynasty|war|battle|movement|constitution|parliament|assembly|president|prime minister|governor|democracy|article|act|state|district|river|mountain|hill|plateau|valley|soil|climate|geography|country|capital|border|census|population|civilization|culture|tribe|community|religion|reform|freedom|independence|mughal|ahom|british|india|assam)\b/i;
+function subjectFor(q){const ranges=sectionRanges[q.paperId]||{};for(const name of ["math","english","reasoning","social"])if(inRange(q.number,ranges[name]))return name;return socialTerms.test(q.question)?"social":"gk"}
+const paperSet=()=>state.questions.filter(q=>q.paperId===state.paperId);
+const currentSet=()=>state.mockQuestions.length?state.mockQuestions:paperSet().filter(q=>state.subject==="all"||subjectFor(q)===state.subject);
+const subjectOptions=()=>Object.entries(subjectNames).map(([value,label])=>{const count=value==="all"?paperSet().length:paperSet().filter(q=>subjectFor(q)===value).length;return `<option value="${value}" ${state.subject===value?"selected":""}>${esc(label)} · ${count}</option>`}).join("");
 const shown=q=>state.language==="en"?q:state.translations[`${q.id}:${state.language}`]||q;
 const headers=()=>({"Content-Type":"application/json","Authorization":`Bearer ${auth.session.access_token}`});
 const save=()=>localStorage.setItem("adreQuizResults",JSON.stringify(state.results));
@@ -46,7 +58,9 @@ function render(){if(state.view==="dashboard")return dashboard();if(state.view==
  ${state.navigator?`<div class="modal-backdrop" data-action="close"><section class="navigator"><div class="navigator-head"><div><p class="section-label">Review or jump to</p><h2>${esc(q.paper)}</h2></div><button data-action="close">×</button></div><div class="question-grid">${set.map((x,i)=>`<button data-jump="${i}" class="${i===state.index?"current":""} ${state.results[x.id]?"done":""}">${x.number}</button>`).join("")}</div></section></div>`:""}${utilityModal()}`;
  const questionText=document.querySelector(".question-area > h2");if(questionText){questionText.classList.add("math-text");questionText.innerHTML=math(view.question)}
  document.querySelectorAll(".option .letter + span").forEach((node,i)=>{node.classList.add("math-text");node.innerHTML=math(view.options[i])});
+ if(!state.mockQuestions.length){const control=`<label class="subject-filter"><span>Question subject</span><select class="subject-select" aria-label="Filter questions by subject">${subjectOptions()}</select></label>`;document.querySelector(".mobile-paper-picker")?.insertAdjacentHTML("beforeend",control);document.querySelector(".mini-score")?.insertAdjacentHTML("beforebegin",control)}
 }
+document.addEventListener("change",e=>{if(!e.target.matches?.(".subject-select"))return;e.preventDefault();e.stopImmediatePropagation();state.subject=e.target.value;state.index=0;state.selected=currentSet()[0]?state.results[currentSet()[0].id]?.selected??null:null;state.error="";render()},{capture:true});
 function go(i){const set=currentSet();state.index=Math.max(0,Math.min(set.length-1,i));state.selected=state.results[set[state.index].id]?.selected??null;state.error="";state.navigator=false;state.modal="";render();document.querySelector(".workspace")?.scrollIntoView({behavior:"smooth"})}
 async function check(){if(state.selected===null||state.loading)return;const q=currentSet()[state.index];state.loading=true;state.error="";render();try{const r=await fetch("/api/answer",{method:"POST",headers:headers(),body:JSON.stringify({questionId:q.id})}),d=await r.json();if(!r.ok)throw Error(d.error||"Could not check answer.");state.results[q.id]={...d,selected:state.selected};save()}catch(e){state.error=e.message}finally{state.loading=false;render()}}
 async function translate(){const q=currentSet()[state.index];state.translating=true;state.error="";render();try{const r=await fetch("/api/translate",{method:"POST",headers:headers(),body:JSON.stringify({questionId:q.id,language:state.language})}),d=await r.json();if(!r.ok)throw Error(d.error||"Translation failed.");state.translations[`${q.id}:${state.language}`]=d}catch(e){state.error=e.message}finally{state.translating=false;render()}}

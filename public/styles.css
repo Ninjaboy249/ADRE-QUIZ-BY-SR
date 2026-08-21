@@ -166,3 +166,10 @@ button:focus-visible, a:focus-visible { outline:3px solid #d4b43c; outline-offse
 .affairs-empty,.affairs-loading { min-height:330px; border:1px dashed #bbc1b9; border-radius:20px; display:grid; place-content:center; justify-items:center; text-align:center; padding:30px; }.affairs-empty p,.affairs-loading p { color:var(--muted); }.affairs-loading span { width:38px; height:38px; border:4px solid var(--line); border-top-color:var(--green); border-radius:50%; animation:spin 1s linear infinite; }@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:800px){.dashboard-grid{grid-template-columns:1fr}.dashboard-card{min-height:260px}.dashboard-hero{padding-top:42px}.affairs-heading{align-items:stretch;flex-direction:column}.profile-popover{position:fixed;top:68px;right:12px;left:12px;width:auto}.icon-action{display:none}.profile-popover button{min-height:48px}.profile-popover button:first-of-type{display:block}.dashboard-grid{padding-inline:14px}.dashboard-hero,.affairs-page{padding-inline:16px}}
 @media(max-width:520px){.dashboard-hero h1{font-size:36px}.dashboard-card{padding:22px}.affairs-list article{padding:18px}.profile-popover{top:62px}.topbar-actions .language-select{display:none}}
+.math-text { font-variant-numeric:lining-nums; }
+.math-text sup { position:relative; top:-.15em; font-size:.68em; line-height:0; }
+.source-modal { width:min(1000px,94vw); height:min(850px,92dvh); padding:22px; border-radius:20px; display:flex; flex-direction:column; background:var(--card); box-shadow:0 24px 80px rgba(18,43,37,.28); }
+.source-hint { margin:0 0 12px; color:var(--muted); font-size:13px; }
+.source-modal iframe { width:100%; min-height:0; flex:1; border:1px solid var(--line); border-radius:12px; background:#eee; }
+.source-open { margin-top:12px; align-self:flex-end; color:var(--green); font-weight:700; text-decoration:none; }
+@media(max-width:520px){.source-backdrop{align-items:stretch}.source-modal{width:100%;height:100dvh;border-radius:0;padding:14px}.source-modal .navigator-head h2{font-size:17px}.source-hint{font-size:12px}}

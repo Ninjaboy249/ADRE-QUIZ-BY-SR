@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
 import { extname, join } from "node:path";
 import { randomUUID } from "node:crypto";
+import { normalizedQuestion } from "./public/math-normalize.js";
 
 function loadLocalEnv() {
   for (const filename of [".env.local", ".env"]) {
@@ -15,7 +16,7 @@ function loadLocalEnv() {
 }
 
 loadLocalEnv();
-const questions = JSON.parse(readFileSync("data/questions.json", "utf8"));
+const questions = JSON.parse(readFileSync("data/questions.json", "utf8")).map(normalizedQuestion);
 const questionMap = new Map(questions.map((question) => [question.id, question]));
 const cache = new Map();
 const port = Number(process.env.PORT || 3000);
@@ -25,6 +26,7 @@ const staticFiles = {
   "/auth.js": ["public/auth.js", "text/javascript; charset=utf-8"],
   "/app.js": ["public/app.js", "text/javascript; charset=utf-8"],
   "/styles.css": ["public/styles.css", "text/css; charset=utf-8"],
+  "/math-normalize.js": ["public/math-normalize.js", "text/javascript; charset=utf-8"],
   "/data/questions.json": ["data/questions.json", "application/json; charset=utf-8"],
 };
 

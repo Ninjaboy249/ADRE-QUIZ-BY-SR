@@ -4,18 +4,27 @@ const saved=(()=>{try{return JSON.parse(localStorage.getItem("adreQuizResults")|
 const state={questions:[],papers:[],paperId:"",index:0,selected:null,results:saved,loading:false,translating:false,error:"",language:localStorage.getItem("adreQuizLanguage")||"en",translations:{},navigator:false,modal:"",donationStatus:"",view:"dashboard",profileOpen:false,mockQuestions:[],currentAffairs:null};
 const esc=(v="")=>String(v).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[c]);
 const math=(value="")=>{
- let text=esc(value).replace(/[\uf0b4\uf0d7]/g,"×").replace(/\uf0b8/g,"÷").replace(/\uf02b/g,"+").replace(/\uf03d/g,"=").replace(/\uf070/g,"π").replace(/\uf071/g,"θ");
- text=text.replace(/\b([A-Za-z]|cm|mm|km|m)([234])\b/g,"$1<sup>$2</sup>");
- return text.replace(/^10\s+([2468])$/,"10<sup>$1</sup>");
+ let text=esc(value)
+  .replace(/[\uf020\u200b]/g,"")
+  .replace(/[\uf0b4\uf0d7]/g,"×").replace(/\uf0b8/g,"÷")
+  .replace(/\uf02b/g,"+").replace(/\uf03d/g,"=")
+  .replace(/\uf070/g,"π").replace(/\uf071/g,"θ")
+  .replace(/[º˚]/g,"°")
+  .replace(/[\uf0e8\uf8eb]/g,"(").replace(/[\uf0f8\uf8f8]/g,")")
+  .replace(/[\uf0e7\uf0e6\uf0f7\uf0f6\uf8ec\uf8ed\uf8f6\uf8f7]/g,"");
+ text=text.replace(/\b(cm|mm|km|m)\s*([23])\b/g,"$1<sup>$2</sup>");
+ text=text.replace(/\b([A-Za-z])([234])\b/g,"$1<sup>$2</sup>");
+ text=text.replace(/\)\s*([234])\b/g,")<sup>$1</sup>");
+ text=text.replace(/\b10\s+([2-9])\b/g,"10<sup>$1</sup>");
+ text=text.replace(/The value of 1849 is/i,"The value of √1849 is");
+ return text.replace(/\s*([=+×÷≠])\s*/g," $1 ").replace(/\s{2,}/g," ").trim();
 };
-const sourcePage=q=>q?.sourcePage?`/assets/ADRE_merged.pdf#page=${q.sourcePage}&view=FitH`:"";
 const currentSet=()=>state.mockQuestions.length?state.mockQuestions:state.questions.filter(q=>q.paperId===state.paperId);
 const shown=q=>state.language==="en"?q:state.translations[`${q.id}:${state.language}`]||q;
 const headers=()=>({"Content-Type":"application/json","Authorization":`Bearer ${auth.session.access_token}`});
 const save=()=>localStorage.setItem("adreQuizResults",JSON.stringify(state.results));
 
 function utilityModal(){
- if(state.modal==="source"){const q=currentSet()[state.index];return `<div class="modal-backdrop source-backdrop"><section class="source-modal"><div class="navigator-head"><div><p class="section-label">Original question paper</p><h2>${esc(q.paper)} · Question ${q.number}</h2></div><button data-action="close" aria-label="Close">×</button></div><p class="source-hint">Use the official paper below whenever an extracted fraction, diagram, or equation is unclear.</p><iframe src="${sourcePage(q)}" title="Original paper page ${q.sourcePage}"></iframe><a class="source-open" href="${sourcePage(q)}" target="_blank" rel="noopener">Open full-size page ↗</a></section></div>`;}
  if(state.modal==="donate")return `<div class="modal-backdrop" data-action="close"><section class="utility-modal"><div class="navigator-head"><div><p class="section-label">Support this project</p><h2>Make a small contribution</h2></div><button data-action="close">×</button></div><p class="modal-copy">Help keep practice and AI explanations available. Choose ₹5–₹100.</p><div class="amount-grid">${[5,10,20,50,100].map(n=>`<button data-amount="${n}">₹${n}</button>`).join("")}</div><label class="field-label" for="custom-amount">Donation amount</label><div class="custom-amount"><span>₹</span><input id="custom-amount" type="number" min="5" max="100" value="5"></div><label class="field-label" for="donor-phone">Mobile number required by Cashfree</label><input id="donor-phone" class="donor-phone" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number"><button class="primary form-submit" data-action="donate-custom">Continue to Cashfree</button>${state.donationStatus?`<p class="form-status">${esc(state.donationStatus)}</p>`:""}<p class="fine-print">Secure checkout powered by Cashfree Payments. Card details are never stored here.</p></section></div>`;
  if(state.modal==="support")return `<div class="modal-backdrop" data-action="close"><section class="utility-modal"><div class="navigator-head"><div><p class="section-label">Help & support</p><h2>How can we help?</h2></div><button data-action="close">×</button></div><form id="support-form"><label class="field-label" for="support-type">Request type</label><select id="support-type"><option>Feature help</option><option>Report a problem</option><option>Suggest a new feature</option><option>Request another exam app</option></select><label class="field-label" for="support-message">Tell us what you need</label><textarea id="support-message" required minlength="10" placeholder="Describe the feature, problem, or exam you want added…"></textarea><button class="primary form-submit" type="submit">Send support request</button></form><p class="fine-print">Opens your email app with the request filled in.</p></section></div>`;
  return "";
@@ -37,9 +46,7 @@ function render(){if(state.view==="dashboard")return dashboard();if(state.view==
  ${state.navigator?`<div class="modal-backdrop" data-action="close"><section class="navigator"><div class="navigator-head"><div><p class="section-label">Review or jump to</p><h2>${esc(q.paper)}</h2></div><button data-action="close">×</button></div><div class="question-grid">${set.map((x,i)=>`<button data-jump="${i}" class="${i===state.index?"current":""} ${state.results[x.id]?"done":""}">${x.number}</button>`).join("")}</div></section></div>`:""}${utilityModal()}`;
  const questionText=document.querySelector(".question-area > h2");if(questionText){questionText.classList.add("math-text");questionText.innerHTML=math(view.question)}
  document.querySelectorAll(".option .letter + span").forEach((node,i)=>{node.classList.add("math-text");node.innerHTML=math(view.options[i])});
- const metaActions=document.querySelector(".quiz-meta-actions");if(metaActions&&!metaActions.querySelector('[data-action="source"]'))metaActions.insertAdjacentHTML("afterbegin",'<button data-action="source">View original</button>');
 }
-document.addEventListener("click",e=>{const source=e.target.closest?.('button[data-action="source"]');if(!source)return;e.preventDefault();e.stopPropagation();state.modal="source";render()},{capture:true});
 function go(i){const set=currentSet();state.index=Math.max(0,Math.min(set.length-1,i));state.selected=state.results[set[state.index].id]?.selected??null;state.error="";state.navigator=false;state.modal="";render();document.querySelector(".workspace")?.scrollIntoView({behavior:"smooth"})}
 async function check(){if(state.selected===null||state.loading)return;const q=currentSet()[state.index];state.loading=true;state.error="";render();try{const r=await fetch("/api/answer",{method:"POST",headers:headers(),body:JSON.stringify({questionId:q.id})}),d=await r.json();if(!r.ok)throw Error(d.error||"Could not check answer.");state.results[q.id]={...d,selected:state.selected};save()}catch(e){state.error=e.message}finally{state.loading=false;render()}}
 async function translate(){const q=currentSet()[state.index];state.translating=true;state.error="";render();try{const r=await fetch("/api/translate",{method:"POST",headers:headers(),body:JSON.stringify({questionId:q.id,language:state.language})}),d=await r.json();if(!r.ok)throw Error(d.error||"Translation failed.");state.translations[`${q.id}:${state.language}`]=d}catch(e){state.error=e.message}finally{state.translating=false;render()}}

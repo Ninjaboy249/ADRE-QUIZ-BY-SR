@@ -1,24 +1,13 @@
+import {normalizeMathText,normalizedQuestion} from "./math-normalize.js";
 const letters=["A","B","C","D"],app=document.querySelector("#app"),auth=window.quizAuth,config=window.appConfig||{};
 const languageNames={en:"English",hi:"हिन्दी",as:"অসমীয়া",brx:"बड़ो"};
 const subjectNames={all:"All subjects",math:"General Mathematics",social:"Social Studies",gk:"General Knowledge / Awareness & Current Affairs",english:"General English",reasoning:"Logical Reasoning & Mental Ability"};
-const saved=(()=>{try{return JSON.parse(localStorage.getItem("adreQuizResults")||"{}")}catch{return {}}})();
+const resultStorageKey="adreQuizResultsV2";
+const saved=(()=>{try{return JSON.parse(localStorage.getItem(resultStorageKey)||"{}")}catch{return {}}})();
 const state={questions:[],papers:[],paperId:"",subject:"all",index:0,selected:null,results:saved,loading:false,translating:false,error:"",language:localStorage.getItem("adreQuizLanguage")||"en",translations:{},navigator:false,modal:"",donationStatus:"",view:"dashboard",profileOpen:false,mockQuestions:[],currentAffairs:null};
 const esc=(v="")=>String(v).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[c]);
 const math=(value="")=>{
- let text=esc(value)
-  .replace(/[\uf020\u200b]/g,"")
-  .replace(/[\uf0b4\uf0d7]/g,"×").replace(/\uf0b8/g,"÷")
-  .replace(/\uf02b/g,"+").replace(/\uf03d/g,"=")
-  .replace(/\uf070/g,"π").replace(/\uf071/g,"θ")
-  .replace(/[º˚]/g,"°")
-  .replace(/[\uf0e8\uf8eb]/g,"(").replace(/[\uf0f8\uf8f8]/g,")")
-  .replace(/[\uf0e7\uf0e6\uf0f7\uf0f6\uf8ec\uf8ed\uf8f6\uf8f7]/g,"");
- text=text.replace(/\b(cm|mm|km|m)\s*([23])\b/g,"$1<sup>$2</sup>");
- text=text.replace(/\b([A-Za-z])([234])\b/g,"$1<sup>$2</sup>");
- text=text.replace(/\)\s*([234])\b/g,")<sup>$1</sup>");
- text=text.replace(/\b10\s+([2-9])\b/g,"10<sup>$1</sup>");
- text=text.replace(/The value of 1849 is/i,"The value of √1849 is");
- return text.replace(/\s*([=+×÷≠])\s*/g," $1 ").replace(/\s{2,}/g," ").trim();
+ return esc(normalizeMathText(value));
 };
 const inRange=(n,ranges)=>ranges?.some(([a,b])=>n>=a&&n<=b);
 const sectionRanges={
@@ -34,7 +23,7 @@ const currentSet=()=>state.mockQuestions.length?state.mockQuestions:paperSet().f
 const subjectOptions=()=>Object.entries(subjectNames).map(([value,label])=>{const count=value==="all"?paperSet().length:paperSet().filter(q=>subjectFor(q)===value).length;return `<option value="${value}" ${state.subject===value?"selected":""}>${esc(label)} · ${count}</option>`}).join("");
 const shown=q=>state.language==="en"?q:state.translations[`${q.id}:${state.language}`]||q;
 const headers=()=>({"Content-Type":"application/json","Authorization":`Bearer ${auth.session.access_token}`});
-const save=()=>localStorage.setItem("adreQuizResults",JSON.stringify(state.results));
+const save=()=>localStorage.setItem(resultStorageKey,JSON.stringify(state.results));
 
 function utilityModal(){
  if(state.modal==="donate")return `<div class="modal-backdrop" data-action="close"><section class="utility-modal"><div class="navigator-head"><div><p class="section-label">Support this project</p><h2>Make a small contribution</h2></div><button data-action="close">×</button></div><p class="modal-copy">Help keep practice and AI explanations available. Choose ₹5–₹100.</p><div class="amount-grid">${[5,10,20,50,100].map(n=>`<button data-amount="${n}">₹${n}</button>`).join("")}</div><label class="field-label" for="custom-amount">Donation amount</label><div class="custom-amount"><span>₹</span><input id="custom-amount" type="number" min="5" max="100" value="5"></div><label class="field-label" for="donor-phone">Mobile number required by Cashfree</label><input id="donor-phone" class="donor-phone" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number"><button class="primary form-submit" data-action="donate-custom">Continue to Cashfree</button>${state.donationStatus?`<p class="form-status">${esc(state.donationStatus)}</p>`:""}<p class="fine-print">Secure checkout powered by Cashfree Payments. Card details are never stored here.</p></section></div>`;
@@ -69,4 +58,4 @@ async function generateCurrentAffairs(){if(state.loading)return;state.loading=tr
 app.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;if(t.dataset.option!==undefined){state.selected=Number(t.dataset.option);return render()}if(t.dataset.paper){state.mockQuestions=[];state.paperId=t.dataset.paper;state.index=0;state.selected=state.results[currentSet()[0].id]?.selected??null;return render()}if(t.dataset.jump!==undefined)return go(Number(t.dataset.jump));if(t.dataset.amount){document.querySelector("#custom-amount").value=t.dataset.amount;return}const a=t.dataset.action;if(a==="dashboard"){state.view="dashboard";state.mockQuestions=[];state.modal="";state.profileOpen=false;render()}else if(a==="practice"){state.view="quiz";state.mockQuestions=[];state.index=0;state.selected=state.results[currentSet()[0].id]?.selected??null;render()}else if(a==="mock"){state.mockQuestions=[...state.questions].sort(()=>Math.random()-.5).slice(0,10);state.view="quiz";state.index=0;state.selected=state.results[state.mockQuestions[0].id]?.selected??null;render()}else if(a==="current-affairs"){state.view="current-affairs";state.profileOpen=false;render();if(!state.currentAffairs)generateCurrentAffairs()}else if(a==="refresh-affairs")generateCurrentAffairs();else if(a==="profile"){state.profileOpen=!state.profileOpen;render()}else if(a==="check")check();else if(a==="previous")go(state.index-1);else if(a==="next")go(state.index+1);else if(a==="translate")translate();else if(a==="navigator"){state.navigator=true;render()}else if(a==="support"||a==="donate"){state.modal=a;state.profileOpen=false;state.donationStatus="";render()}else if(a==="donate-custom")donate(Number(document.querySelector("#custom-amount")?.value),document.querySelector("#donor-phone")?.value.replace(/\D/g,"")||"");else if(a==="close"){state.navigator=false;state.modal="";render()}else if(a==="signout")auth.supabase.auth.signOut()});
 app.addEventListener("change",e=>{if(e.target.id==="paper-select"){state.paperId=e.target.value;state.index=0;state.selected=state.results[currentSet()[0].id]?.selected??null;render()}else if(e.target.id==="language-select"){state.language=e.target.value;localStorage.setItem("adreQuizLanguage",state.language);state.error="";render()}});
 app.addEventListener("submit",e=>{if(e.target.id!=="support-form")return;e.preventDefault();if(!config.supportEmail)return alert("Add SUPPORT_EMAIL to the environment settings first.");const type=document.querySelector("#support-type").value,msg=document.querySelector("#support-message").value,subject=encodeURIComponent(`ADRE Quiz support: ${type}`),body=encodeURIComponent(`Name: ${auth.session.user.user_metadata?.full_name||"User"}\nEmail: ${auth.session.user.email||""}\nRequest type: ${type}\n\n${msg}`);location.href=`mailto:${config.supportEmail}?subject=${subject}&body=${body}`});
-fetch("/data/questions.json").then(r=>r.json()).then(qs=>{state.questions=qs;const m=new Map;qs.forEach(q=>m.set(q.paperId,{id:q.paperId,title:q.paper,count:(m.get(q.paperId)?.count||0)+1}));state.papers=[...m.values()];state.paperId=state.papers[0].id;render()}).catch(()=>app.innerHTML='<div class="error-box">Unable to load the quiz data.</div>');
+fetch("/data/questions.json").then(r=>r.json()).then(qs=>{state.questions=qs.map(normalizedQuestion);const m=new Map;state.questions.forEach(q=>m.set(q.paperId,{id:q.paperId,title:q.paper,count:(m.get(q.paperId)?.count||0)+1}));state.papers=[...m.values()];state.paperId=state.papers[0].id;render()}).catch(()=>app.innerHTML='<div class="error-box">Unable to load the quiz data.</div>');

@@ -1,4 +1,4 @@
-# ADRE Quiz
+# ExamPrep AI
 
 A mobile-friendly quiz app containing all 1,205 English MCQs extracted from the supplied ADRE merged PDF (2022 and 2024, Papers I-V). Answers, reasoning, and explanations are generated through the OpenAI Responses API. The app has no third-party runtime dependencies.
 
@@ -23,6 +23,12 @@ The API key is read only by the server route and is never sent to the browser. `
 Hindi, Assamese, and Boro translations are generated on demand with the configured OpenAI model. Cashfree donation amounts are restricted to ₹5–₹100 and successful orders are verified on the server.
 
 The files in `public/` are served statically and the handlers in `api/` run as Vercel Functions.
+
+## Platform evolution
+
+The multi-exam migration starts with the exam-agnostic catalog at `GET /api/catalog`. ADRE remains the only active exam until a second exam has validated syllabus and question content. See [docs/platform-architecture.md](docs/platform-architecture.md) for the repository audit, target data model, AI/RAG boundaries, migration phases, and risks.
+
+NEET UG is registered with the official NTA 2026 pattern and is marked as awaiting verified content. Apply the migration under `supabase/migrations/`, set the server-only `SUPABASE_SERVICE_ROLE_KEY` for protected admin validation, and follow [docs/neet-import.md](docs/neet-import.md). Never expose the service-role key to browser code.
 
 ## Refresh the PDF extraction
 

@@ -17,6 +17,7 @@ function loadLocalEnv() {
 
 loadLocalEnv();
 const questions = JSON.parse(readFileSync("data/questions.json", "utf8")).map(normalizedQuestion);
+const exams = JSON.parse(readFileSync("data/exams.json", "utf8"));
 const questionMap = new Map(questions.map((question) => [question.id, question]));
 const cache = new Map();
 const port = Number(process.env.PORT || 3000);
@@ -174,9 +175,11 @@ createServer(async (request, response) => {
   if (request.method === "GET" && url.pathname === "/api/config") {
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !supabaseKey) return json(response, 503, { error: "Supabase authentication is not configured yet." });
-    return json(response, 200, { supabaseUrl, supabaseKey, cashfreeMode: process.env.CASHFREE_MODE === "production" ? "production" : "sandbox", cashfreeEnabled: Boolean(process.env.CASHFREE_CLIENT_ID && process.env.CASHFREE_CLIENT_SECRET), supportEmail: process.env.SUPPORT_EMAIL || "" });
+    const demoMode = process.env.DEMO_MODE === "true";
+    if ((!supabaseUrl || !supabaseKey) && !demoMode) return json(response, 503, { error: "Supabase authentication is not configured yet." });
+    return json(response, 200, { supabaseUrl: supabaseUrl || null, supabaseKey: supabaseKey || null, demoMode, cashfreeMode: process.env.CASHFREE_MODE === "production" ? "production" : "sandbox", cashfreeEnabled: Boolean(process.env.CASHFREE_CLIENT_ID && process.env.CASHFREE_CLIENT_SECRET), supportEmail: process.env.SUPPORT_EMAIL || "" });
   }
+  if (request.method === "GET" && url.pathname === "/api/catalog") return json(response, 200, { exams });
   if (request.method !== "GET" || !staticFiles[url.pathname]) return json(response, 404, { error: "Not found." });
   const [path, type] = staticFiles[url.pathname];
   try {

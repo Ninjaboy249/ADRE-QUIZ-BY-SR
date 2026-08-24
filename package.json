@@ -6,6 +6,6 @@
   "scripts": {
     "dev": "node server.mjs",
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check public/app.js"
+    "check": "node --check server.mjs && node --check public/app.js && node --check public/math-normalize.js && node --check lib/question-import.js && node --check scripts/validate_question_import.mjs && node --check api/answer.js && node --check api/admin/validate-import.js && node --check api/catalog.js && node --check api/config.js && node --check api/current-affairs.js && node --check api/donate.js && node --check api/questions.js && node --check api/translate.js"
   }
 }

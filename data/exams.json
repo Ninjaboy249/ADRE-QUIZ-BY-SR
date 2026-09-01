@@ -1,0 +1,93 @@
+[
+  {
+    "id": "adre",
+    "slug": "adre",
+    "name": "Assam Direct Recruitment Examination",
+    "shortName": "ADRE",
+    "category": "state-exams",
+    "status": "active",
+    "defaultLanguage": "en",
+    "languages": ["en", "hi", "as", "brx"],
+    "features": { "practice": true, "pyq": true, "mockTests": true, "aiTutor": true, "currentAffairs": true },
+    "subjects": [
+      { "id": "adre-mathematics", "slug": "mathematics", "name": "General Mathematics" },
+      { "id": "adre-social-studies", "slug": "social-studies", "name": "Social Studies" },
+      { "id": "adre-general-awareness", "slug": "general-awareness", "name": "General Knowledge, Awareness & Current Affairs" },
+      { "id": "adre-english", "slug": "english", "name": "General English" },
+      { "id": "adre-reasoning", "slug": "reasoning", "name": "Logical Reasoning & Mental Ability" }
+    ],
+    "content": { "questionCount": 1205, "paperCount": 10, "years": [2022, 2024] },
+    "pattern": { "questionType": "single-correct-mcq", "marksPerCorrect": 1, "negativeMarksPerIncorrect": 0 }
+  },
+  {
+    "id": "neet-ug",
+    "slug": "neet-ug",
+    "name": "National Eligibility cum Entrance Test (Undergraduate)",
+    "shortName": "NEET UG",
+    "category": "medical-entrance",
+    "status": "awaiting_verified_content",
+    "defaultLanguage": "en",
+    "languages": ["en", "hi"],
+    "features": { "practice": false, "pyq": false, "mockTests": false, "aiTutor": false, "currentAffairs": false, "syllabus": false },
+    "subjects": [
+      { "id": "neet-physics", "slug": "physics", "name": "Physics", "questionCount": 45, "maximumMarks": 180 },
+      { "id": "neet-chemistry", "slug": "chemistry", "name": "Chemistry", "questionCount": 45, "maximumMarks": 180 },
+      { "id": "neet-biology", "slug": "biology", "name": "Biology", "questionCount": 90, "maximumMarks": 360 }
+    ],
+    "content": { "questionCount": 0, "paperCount": 0, "years": [], "syllabusStatus": "awaiting_owner_import", "pyqStatus": "awaiting_owner_import" },
+    "pattern": {
+      "version": "2026",
+      "durationMinutes": 180,
+      "totalQuestions": 180,
+      "maximumMarks": 720,
+      "questionType": "single-correct-mcq",
+      "marksPerCorrect": 4,
+      "negativeMarksPerIncorrect": 1,
+      "marksPerUnanswered": 0,
+      "sourceUrl": "https://cdnbbsr.s3waas.gov.in/s37bc1ec1d9c3426357e69acd5bf320061/uploads/2026/02/202602231394640855.pdf",
+      "sourceLabel": "NTA NEET (UG) 2026 Information Bulletin"
+    },
+    "syllabus": {
+      "version": "2026",
+      "status": "awaiting_owner_import",
+      "sourceUrl": "https://cdnbbsr.s3waas.gov.in/s37bc1ec1d9c3426357e69acd5bf320061/uploads/2026/01/202601081066816297.pdf",
+      "sourceLabel": "Official NEET (UG) 2026 syllabus"
+    }
+  },
+  {
+    "id":"jee-main","slug":"jee-main","name":"Joint Entrance Examination (Main)","shortName":"JEE Main","category":"engineering-entrance","status":"awaiting_verified_content","defaultLanguage":"en","languages":["en","hi"],
+    "features":{"practice":false,"pyq":false,"mockTests":false,"aiTutor":false,"syllabus":false},
+    "subjects":[{"id":"jee-main-physics","slug":"physics","name":"Physics","questionCount":25,"maximumMarks":100},{"id":"jee-main-chemistry","slug":"chemistry","name":"Chemistry","questionCount":25,"maximumMarks":100},{"id":"jee-main-mathematics","slug":"mathematics","name":"Mathematics","questionCount":25,"maximumMarks":100}],
+    "content":{"questionCount":0,"paperCount":0,"years":[],"syllabusStatus":"awaiting_owner_import","pyqStatus":"awaiting_owner_import"},
+    "pattern":{"version":"2026","paper":"Paper 1","programme":"B.E./B.Tech","sessions":["Session 1","Session 2"],"durationMinutes":180,"totalQuestions":75,"maximumMarks":300,"questionTypes":["single_correct_mcq","numerical"],"marksPerCorrect":4,"negativeMarksPerIncorrect":1,"marksPerUnanswered":0,"sourceUrl":"https://cdnbbsr.s3waas.gov.in/s3f8e59f4b2fe7c5705bf878bbd494ccdf/uploads/2025/11/202511021649722475.pdf","sourceLabel":"NTA JEE (Main) 2026 Information Bulletin"},
+    "syllabus":{"version":"2026","status":"awaiting_owner_import","sourceUrl":"https://jeemain.nta.nic.in/document/syllabus-2026/","sourceLabel":"Official JEE Main 2026 syllabus"}
+  },
+  {
+    "id":"jee-advanced","slug":"jee-advanced","name":"Joint Entrance Examination (Advanced)","shortName":"JEE Advanced","category":"engineering-entrance","status":"awaiting_verified_content","defaultLanguage":"en","languages":["en","hi"],
+    "features":{"practice":false,"pyq":false,"mockTests":false,"aiTutor":false,"syllabus":false},
+    "subjects":[{"id":"jee-advanced-physics","slug":"physics","name":"Physics"},{"id":"jee-advanced-chemistry","slug":"chemistry","name":"Chemistry"},{"id":"jee-advanced-mathematics","slug":"mathematics","name":"Mathematics"}],
+    "content":{"questionCount":0,"paperCount":0,"years":[],"syllabusStatus":"awaiting_owner_import","pyqStatus":"awaiting_owner_import"},
+    "patterns":[{"version":"2026","papers":[{"paper":"Paper 1","durationMinutes":180},{"paper":"Paper 2","durationMinutes":180}],"bothPapersRequired":true,"subjects":["Physics","Chemistry","Mathematics"],"questionTypes":["single_correct_mcq","multiple_correct_mcq","numerical","integer_answer","match_following","matrix_match","passage"],"markingPolicy":"year_and_section_specific","questionCount":null,"maximumMarks":null,"sourceUrl":"https://jeeadv.ac.in/documents/IBEnglish_2026.pdf","sourceLabel":"JEE (Advanced) 2026 Information Brochure"}],
+    "syllabus":{"version":"2026","status":"awaiting_owner_import","sourceUrl":"https://jeeadv.ac.in/","sourceLabel":"Official JEE Advanced 2026 syllabus"}
+  },
+  {
+    "id":"upsc-cse","slug":"upsc-cse","name":"UPSC Civil Services Examination","shortName":"UPSC CSE","category":"civil-services","status":"awaiting_verified_content","defaultLanguage":"en","languages":["en","hi"],
+    "features":{"practice":false,"pyq":false,"mockTests":false,"aiTutor":false,"currentAffairs":false,"syllabus":false,"descriptiveAnswers":true},
+    "content":{"questionCount":0,"paperCount":0,"years":[],"syllabusStatus":"awaiting_owner_import","pyqStatus":"awaiting_owner_import"},
+    "versions":[{"version":"2026","sourceUrl":"https://www.upsc.gov.in/examinations/Civil%20Services%20%28Preliminary%29%20Examination%2C%202026","sourceLabel":"UPSC Civil Services Examination 2026 official examination page","configurationStatus":"awaiting_verified_import","stages":[
+      {"id":"prelims","name":"Preliminary Examination","papers":[{"id":"gs-1","name":"General Studies Paper I","mode":"objective","questionTypes":["single_correct_mcq","multiple_statement","assertion_reason","match_following","passage","image_map"]},{"id":"csat","name":"General Studies Paper II / CSAT","mode":"objective","questionTypes":["single_correct_mcq","passage","numerical"]}]},
+      {"id":"mains","name":"Main Examination","papers":[{"id":"essay","name":"Essay","mode":"descriptive"},{"id":"gs-1","name":"General Studies Paper I","mode":"descriptive"},{"id":"gs-2","name":"General Studies Paper II","mode":"descriptive"},{"id":"gs-3","name":"General Studies Paper III","mode":"descriptive"},{"id":"gs-4","name":"General Studies Paper IV","mode":"descriptive"},{"id":"optional-1","name":"Optional Subject Paper I","mode":"descriptive","configurableOptional":true},{"id":"optional-2","name":"Optional Subject Paper II","mode":"descriptive","configurableOptional":true}]}
+    ]}],
+    "subjects":[{"id":"upsc-prelims-gs","slug":"prelims-gs","name":"Prelims General Studies"},{"id":"upsc-csat","slug":"csat","name":"CSAT"},{"id":"upsc-mains-gs","slug":"mains-gs","name":"Mains General Studies"},{"id":"upsc-essay","slug":"essay","name":"Essay"},{"id":"upsc-optionals","slug":"optional-subjects","name":"Optional Subjects","configurable":true}]
+  },
+  {
+    "id":"rbi-grade-b","slug":"rbi-grade-b","name":"RBI Grade B (General Cadre)","shortName":"RBI Grade B","category":"banking-financial-sector","status":"awaiting_verified_content","defaultLanguage":"en","languages":["en","hi"],
+    "features":{"practice":false,"pyq":false,"mockTests":false,"aiTutor":false,"syllabus":false,"descriptiveAnswers":true},
+    "content":{"questionCount":0,"paperCount":0,"years":[],"syllabusStatus":"awaiting_owner_import","pyqStatus":"awaiting_owner_import"},
+    "versions":[{"version":"2026","sourceUrl":"https://opportunities.rbi.org.in/Scripts/bs_viewcontent.aspx?Id=4997","sourceLabel":"RBI Grade B Direct Recruitment 2026 official notice","configurationStatus":"awaiting_verified_import","stages":[
+      {"id":"phase-1","name":"Phase I","papers":[{"id":"general-awareness","name":"General Awareness","mode":"objective"},{"id":"english","name":"English Language","mode":"objective"},{"id":"quantitative-aptitude","name":"Quantitative Aptitude","mode":"objective"},{"id":"reasoning","name":"Reasoning","mode":"objective"}]},
+      {"id":"phase-2","name":"Phase II","papers":[{"id":"esi","name":"Economic and Social Issues","mode":"mixed"},{"id":"english-writing","name":"English — Writing Skills","mode":"descriptive"},{"id":"finance-management","name":"Finance and Management","mode":"mixed"}]}
+    ]}],
+    "subjects":[{"id":"rbi-awareness","slug":"general-awareness","name":"General Awareness"},{"id":"rbi-english","slug":"english","name":"English"},{"id":"rbi-quant","slug":"quantitative-aptitude","name":"Quantitative Aptitude"},{"id":"rbi-reasoning","slug":"reasoning","name":"Reasoning"},{"id":"rbi-esi","slug":"economic-social-issues","name":"Economic & Social Issues"},{"id":"rbi-finance-management","slug":"finance-management","name":"Finance & Management"}]
+  }
+]

@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { normalizedQuestion } from "../public/math-normalize.js";
 
-const questions = JSON.parse(readFileSync(join(process.cwd(), "data", "questions.json"), "utf8"));
+const questions = JSON.parse(readFileSync(join(process.cwd(), "data", "questions.json"), "utf8")).map(normalizedQuestion);
 const questionMap = new Map(questions.map((question) => [question.id, question]));
 const languages = { hi: "Hindi", as: "Assamese", brx: "Boro (Devanagari script)" };
 

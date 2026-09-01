@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { normalizedQuestion } from "../public/math-normalize.js";
 
 const questions = JSON.parse(
   readFileSync(join(process.cwd(), "data", "questions.json"), "utf8"),
-);
+).map(normalizedQuestion);
 const questionMap = new Map(questions.map((question) => [question.id, question]));
 
 function responseText(payload) {
